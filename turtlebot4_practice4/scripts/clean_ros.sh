@@ -11,8 +11,14 @@ if [ -n "$pids" ]; then
 fi
 
 pkill -9 -f "ign gazebo" 2>/dev/null || true
+pkill -9 -f "ruby.*gazebo" 2>/dev/null || true
 pkill -9 -f "ros2 launch" 2>/dev/null || true
+pkill -9 -f "rviz2" 2>/dev/null || true
 ros2 daemon stop 2>/dev/null || true
+
+# Dọn dẹp shared memory và semaphore của FastDDS bị kẹt
+rm -f /dev/shm/fastrtps* /dev/shm/sem.fastrtps* 2>/dev/null || true
+rm -f /tmp/launch_params* 2>/dev/null || true
 
 sleep 1
 echo "======================================================="
