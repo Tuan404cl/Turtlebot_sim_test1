@@ -6,6 +6,7 @@ bt_navigator:
     odom_topic: odom
     bt_loop_duration: 10
     default_server_timeout: 20
+    transform_tolerance: 2.0
     # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
@@ -70,6 +71,7 @@ controller_server:
   ros__parameters:
     use_sim_time: True
     controller_frequency: 20.0
+    transform_tolerance: 2.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
@@ -120,7 +122,7 @@ controller_server:
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
-      transform_tolerance: 0.2
+      transform_tolerance: 2.0
       xy_goal_tolerance: 0.25
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
@@ -145,6 +147,7 @@ local_costmap:
       global_frame: odom
       robot_base_frame: base_link
       use_sim_time: True
+      transform_tolerance: 2.0
       rolling_window: true
       width: 3
       height: 3
@@ -188,6 +191,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: True
+      transform_tolerance: 2.0
       robot_radius: 0.175
       resolution: 0.06
       track_unknown_space: true
@@ -219,6 +223,7 @@ planner_server:
   ros__parameters:
     expected_planner_frequency: 20.0
     use_sim_time: True
+    transform_tolerance: 2.0
     planner_plugins: ["GridBased"]
     GridBased:
       plugin: "nav2_navfn_planner/NavfnPlanner"
@@ -254,7 +259,7 @@ behavior_server:
       plugin: "nav2_behaviors/AssistedTeleop"
     global_frame: odom
     robot_base_frame: base_link
-    transform_tolerance: 0.1
+    transform_tolerance: 2.0
     use_sim_time: true
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
