@@ -12,7 +12,7 @@ Bao gồm:
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -30,6 +30,8 @@ def generate_launch_description():
 
     tb4_loc_launch = PathJoinSubstitution([pkg_tb4_nav, 'launch', 'localization.launch.py'])
     tb4_nav_launch = PathJoinSubstitution([pkg_tb4_nav, 'launch', 'nav2.launch.py'])
+    fastdds_profile = PathJoinSubstitution([pkg_practice, 'config', 'fastdds_udp_only.xml'])
+    set_fastdds = SetEnvironmentVariable('FASTRTPS_DEFAULT_PROFILES_FILE', fastdds_profile)
 
     arguments = [
         DeclareLaunchArgument('namespace', default_value='',
@@ -98,6 +100,7 @@ def generate_launch_description():
     )
 
     ld = LaunchDescription(arguments)
+    ld.add_action(set_fastdds)
     ld.add_action(simulation)
     ld.add_action(localization)
     ld.add_action(navigation)

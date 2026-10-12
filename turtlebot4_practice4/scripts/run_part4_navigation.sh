@@ -12,6 +12,8 @@ if [ -f "/home/tuan/turtelbot4_ws/install/setup.bash" ]; then
     source /home/tuan/turtelbot4_ws/install/setup.bash
 fi
 
+export FASTRTPS_DEFAULT_PROFILES_FILE="/home/tuan/turtelbot4_ws/src/turtlebot4_practice4/config/fastdds_udp_only.xml"
+
 MAP_FILE="/home/tuan/turtelbot4_ws/src/turtlebot4_practice4/maps/map.yaml"
 
 echo "======================================================="
