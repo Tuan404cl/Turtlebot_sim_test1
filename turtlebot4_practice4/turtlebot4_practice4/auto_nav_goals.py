@@ -32,8 +32,12 @@ def create_pose_stamped(navigator: BasicNavigator, x: float, y: float, yaw: floa
     return pose
 
 def main():
-    rclpy.init()
+    rclpy.init(args=sys.argv)
     navigator = BasicNavigator()
+    # Kích hoạt use_sim_time để đồng bộ với Gazebo clock
+    navigator.set_parameters([
+        rclpy.parameter.Parameter('use_sim_time', rclpy.Parameter.Type.BOOL, True)
+    ])
 
     print("\n=======================================================")
     print("      TURTLEBOT 4 - TỰ ĐỘNG THỰC HIỆN 03 NAV GOALS     ")

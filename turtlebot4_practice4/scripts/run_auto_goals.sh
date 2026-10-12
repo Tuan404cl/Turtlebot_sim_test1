@@ -18,5 +18,5 @@ echo "Yêu cầu: Phần 4 (Nav2 Stack) đang chạy ở một terminal khác."
 echo "Khởi chạy kịch bản tự động điều hướng qua 3 vùng khác nhau..."
 echo "======================================================="
 
-ros2 run turtlebot4_practice4 auto_nav_goals
+ros2 run turtlebot4_practice4 auto_nav_goals --ros-args -p use_sim_time:=true
 
