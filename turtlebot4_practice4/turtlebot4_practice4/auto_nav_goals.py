@@ -108,7 +108,7 @@ def main():
     else:
         print(">>> Một số goal chưa hoàn thành. Kiểm tra lại costmap và vị trí đặt goal! <<<\n")
 
-    navigator.lifecycleShutdown()
+    navigator.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
