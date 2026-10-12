@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Báo cáo Kỹ thuật: Bài thực hành 04 - TurtleBot 4 Simulation, SLAM Toolbox & Nav2</title>
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #24292e;
+    line-height: 1.5;
+    font-size: 10.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    font-size: 18pt;
+    color: #0366d6;
+    border-bottom: 2px solid #eaecef;
+    padding-bottom: 6px;
+    margin-top: 10px;
+    margin-bottom: 8px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  h2 {
+    font-size: 13pt;
+    color: #1b1f23;
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 4px;
+    margin-top: 18px;
+    margin-bottom: 8px;
+  }
+  h3 {
+    font-size: 11pt;
+    color: #24292e;
+    margin-top: 12px;
+    margin-bottom: 6px;
+  }
+  p, li {
+    font-size: 10pt;
+    margin: 4px 0;
+  }
+  .header-meta {
+    background-color: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 15px;
+    font-size: 9.5pt;
+  }
+  .header-meta table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .header-meta td {
+    padding: 3px 6px;
+    border: none;
+  }
+  table.content-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 9pt;
+  }
+  table.content-table th, table.content-table td {
+    border: 1px solid #dfe2e5;
+    padding: 5px 8px;
+    text-align: left;
+  }
+  table.content-table th {
+    background-color: #f6f8fa;
+    font-weight: 600;
+  }
+  table.content-table tr:nth-child(even) {
+    background-color: #fafbfc;
+  }
+  code {
+    background-color: #f6f8fa;
+    border: 1px solid #eaecef;
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 9pt;
+    color: #d73a49;
+  }
+  pre {
+    background-color: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 8px 12px;
+    overflow-x: auto;
+    font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 8.5pt;
+    line-height: 1.4;
+    margin: 8px 0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 8pt;
+    font-weight: bold;
+    border-radius: 4px;
+  }
+  .badge-pass {
+    background-color: #28a745;
+    color: white;
+  }
+  .alert-box {
+    background-color: #e6ffed;
+    border-left: 4px solid #28a745;
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 9.5pt;
+  }
+  .alert-warning {
+    background-color: #fffbdd;
+    border-left: 4px solid #d99b00;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+</style>
+</head>
+<body>
+
+<h1>BÁO CÁO THỰC HÀNH 04: TURTLEBOT 4 SIMULATION</h1>
+<p style="text-align:center; font-weight:bold; margin-top:-5px; color:#586069;">SLAM TOOLBOX, AMCL LOCALIZATION VÀ NAV2 AUTONOMOUS NAVIGATION</p>
+
+<div class="header-meta">
+  <table>
+    <tr>
+      <td width="50%"><strong>Môn học:</strong> Hệ điều khiển Robot (ROS 2)</td>
+      <td width="50%"><strong>Nền tảng:</strong> ROS 2 Humble / Gazebo Fortress (Ubuntu 22.04 LTS)</td>
+    </tr>
+    <tr>
+      <td><strong>Sinh viên:</strong> [Họ và Tên Sinh Viên] - MSSV: [Mã Số SV]</td>
+      <td><strong>Mô hình Robot:</strong> TurtleBot 4 (Create 3 Base + RPLiDAR)</td>
+    </tr>
+    <tr>
+      <td colspan="2"><strong>Video Demo (Google Drive Public):</strong> <code>[DÁN_LINK_GOOGLE_DRIVE_TẠI_ĐÂY]</code></td>
+    </tr>
+    <tr>
+      <td colspan="2"><strong>GitHub Repository (Public):</strong> <code>[DÁN_LINK_GITHUB_REPOSITORY_TẠI_ĐÂY]</code></td>
+    </tr>
+  </table>
+</div>
+
+<h2>I. CẤU TRÚC GÓI CHƯƠNG TRÌNH TRONG THƯ MỤC <code>src/</code></h2>
+<p>Toàn bộ mã nguồn, launch files, cấu hình và bản đồ được đóng gói hoàn chỉnh trong package <strong><code>turtlebot4_practice4</code></strong> theo cấu trúc chuẩn ROS 2 Ament Python:</p>
+
+<pre>
+turtlebot4_ws/src/
+└── turtlebot4_practice4/
+    ├── package.xml                       # Tuyên bố phụ thuộc ROS 2 package
+    ├── setup.py                          # Cấu hình cài đặt package và console scripts
+    ├── setup.cfg                         # Thiết lập đường dẫn thực thi script
+    ├── turtlebot4_practice4/
+    │   ├── check_topics.py               # Node kiểm tra tự động /scan, /odom, /cmd_vel
+    │   └── auto_nav_goals.py             # Node tự động điều hướng qua 03 mục tiêu
+    ├── launch/
+    │   ├── sim_robot.launch.py           # Launch Gazebo Simulation (Phần 1)
+    │   ├── sim_slam.launch.py            # Launch SLAM Toolbox & RViz2 (Phần 2)
+    │   ├── sim_localization.launch.py    # Launch AMCL & Map Server (Phần 3)
+    │   └── sim_navigation.launch.py      # Launch Nav2 Stack & RViz2 (Phần 4)
+    ├── config/
+    │   ├── slam_toolbox_params.yaml      # Cấu hình tối ưu Ceres Solver cho SLAM
+    │   ├── localization_params.yaml      # Cấu hình bộ lọc hạt AMCL
+    │   ├── nav2_params.yaml              # Cấu hình Costmaps, DWB Controller, NavFn Planner
+    │   ├── turtlebot4_mapping.rviz       # Giao diện RViz2 cho mapping
+    │   └── turtlebot4_nav2.rviz          # Giao diện RViz2 cho Nav2 navigation
+    ├── maps/
+    │   ├── map.yaml / map.pgm            # Bản đồ 2D Occupancy Grid hoàn chỉnh
+    │   └── warehouse_map.* / maze_map.*  # Bản đồ các môi trường dự phòng
+    ├── scripts/
+    │   ├── run_part1_sim.sh              # Shell script chạy nhanh Phần 1
+    │   ├── run_part2_slam.sh             # Shell script chạy nhanh Phần 2
+    │   ├── run_teleop.sh                 # Bàn phím teleop điều khiển xe
+    │   ├── save_map.sh                   # Script lưu bản đồ từ SLAM Toolbox
+    │   ├── run_part3_localization.sh     # Shell script chạy nhanh Phần 3
+    │   ├── run_part4_navigation.sh       # Shell script chạy nhanh Phần 4
+    │   └── run_auto_goals.sh             # Shell script tự động gửi 3 goals
+    └── docs/
+        ├── bao_cao_thuc_hanh_04.md       # Báo cáo kỹ thuật chi tiết Markdown
+        ├── bao_cao_thuc_hanh_04.html     # Báo cáo kỹ thuật định dạng HTML
+        └── bao_cao_thuc_hanh_04.pdf      # File PDF hoàn chỉnh nộp bài
+</pre>
+
+<h2>II. CÁC PACKAGE, NODE VÀ TOPIC CỐT LÕI</h2>
+<table class="content-table">
+  <tr>
+    <th width="25%">Package / Node</th>
+    <th width="35%">Vai trò chức năng</th>
+    <th width="40%">Topic / Dữ liệu trao đổi</th>
+  </tr>
+  <tr>
+    <td><code>turtlebot4_ignition_bringup</code><br><code>ign gazebo</code></td>
+    <td>Mô phỏng động học xe, cảm biến quang học, thế giới warehouse và dock sạc.</td>
+    <td>Giao tiếp nội bộ qua Ignition Transport, sinh xung đồng hồ <code>/clock</code>.</td>
+  </tr>
+  <tr>
+    <td><code>ros_gz_bridge</code><br><code>lidar_bridge</code></td>
+    <td>Cầu nối hai chiều giữa Gazebo và ROS 2 cho cảm biến và lệnh vận tốc.</td>
+    <td><code>/scan</code> (LaserScan, 10 Hz), <code>/cmd_vel</code> (Twist), <code>/odom</code> (Odometry).</td>
+  </tr>
+  <tr>
+    <td><code>diffdrive_controller</code></td>
+    <td>Bộ điều khiển vi sai áp đặt vận tốc góc lên các khớp bánh xe Create 3.</td>
+    <td>Đọc <code>/cmd_vel</code>, xuất thông tin khớp <code>/joint_states</code> và <code>/odom</code>.</td>
+  </tr>
+  <tr>
+    <td><code>slam_toolbox</code><br><code>sync_slam_toolbox_node</code></td>
+    <td>Graph-based SLAM xây dựng lưới chiếm dụng (Occupancy Grid) và tối ưu pose graph.</td>
+    <td>Nhận <code>/scan</code>, <code>/odom</code>, phát <code>/map</code>, <code>/map_metadata</code>, TF <code>map->odom</code>.</td>
+  </tr>
+  <tr>
+    <td><code>nav2_map_server</code></td>
+    <td>Nạp file <code>map.yaml</code> và xuất bản bản đồ tĩnh đã biết trước.</td>
+    <td>Phát <code>/map</code> với QoS Transient Local cho AMCL và Costmaps.</td>
+  </tr>
+  <tr>
+    <td><code>nav2_amcl</code></td>
+    <td>Định vị thích nghi Monte Carlo dựa trên bộ lọc hạt (Particle Filter).</td>
+    <td>Nhận <code>/scan</code>, <code>/map</code>, <code>/odom</code>, phát <code>/particlecloud</code>, TF <code>map->odom</code>.</td>
+  </tr>
+  <tr>
+    <td><code>nav2_planner</code> &<br><code>nav2_controller</code></td>
+    <td>Lập kế hoạch toàn cục (NavFn - Dijkstra/A*) và điều khiển bám đường cục bộ (DWB).</td>
+    <td>Phát đường đi toàn cục <code>/plan</code>, xuất lệnh vận tốc <code>/cmd_vel</code> (20 Hz).</td>
+  </tr>
+  <tr>
+    <td><code>nav2_bt_navigator</code></td>
+    <td>Cây hành vi điều phối điều hướng và thực thi chuỗi phục hồi khi gặp sự cố.</td>
+    <td>Action Servers: <code>/navigate_to_pose</code>, <code>/spin</code>, <code>/backup</code>, <code>/wait</code>.</td>
+  </tr>
+</table>
+
+<h3>Cây biến đổi toạ độ TF (REP-105):</h3>
+<p style="text-align:center; font-weight:bold; background:#eef; padding:6px; border-radius:4px;">
+<code>map</code> &nbsp;&xrightarrow{\quad \text{SLAM / AMCL (Hiệu chỉnh trôi dạt)} \quad}&nbsp; 
+<code>odom</code> &nbsp;&xrightarrow{\quad \text{DiffDrive Controller (Liên tục)} \quad}&nbsp; 
+<code>base_link</code> &nbsp;&xrightarrow{\quad \text{URDF Static} \quad}&nbsp; 
+<code>turtlebot4/rplidar_link/rplidar</code>
+</p>
+
+<div class="page-break"></div>
+
+<h2>III. KẾT QUẢ THỰC HIỆN 4 PHẦN THỰC HÀNH</h2>
+
+<h3>Phần 1: Khởi chạy và kiểm tra Simulation</h3>
+<p>Hệ thống mô phỏng thế giới <code>warehouse</code> được khởi chạy thành công. Node kiểm tra tự động <code>check_topics</code> cho kết quả kiểm tra định lượng như sau:</p>
+<div class="alert-box">
+  <strong>[PASS] /scan:</strong> Nhận 16+ message liên tục, Frame: <code>turtlebot4/rplidar_link/rplidar</code>, 640 tia quét, cự ly đo 1.34m - 11.99m.<br>
+  <strong>[PASS] /odom:</strong> Nhận ở tần số 50 Hz, liên kết <code>odom -> base_link</code>, toạ độ ban đầu (x=0.000, y=0.000, z=0.000).<br>
+  <strong>[PASS] /cmd_vel:</strong> Gửi lệnh Twist kích hoạt bánh xe phản hồi thành công trong Gazebo.<br>
+  <strong>[PASS] RViz2:</strong> Mô hình 3D robot, laser scan đỏ và các trục TF hiển thị chuẩn xác.
+</div>
+
+<h3>Phần 2: Xây dựng bản đồ bằng SLAM Toolbox</h3>
+<ul>
+  <li>Khởi chạy: <code>ros2 launch turtlebot4_practice4 sim_slam.launch.py</code></li>
+  <li>Lái robot qua các hành lang chính bằng <code>teleop_twist_keyboard</code> với tốc độ an toàn ($v = 0.2\text{ m/s}, \omega = 0.4\text{ rad/s}$).</li>
+  <li>Thuật toán <strong>Ceres Solver</strong> thực hiện scan matching và nhận diện <strong>Loop Closure</strong> (đóng vòng lặp) khi robot quay lại điểm xuất phát, loại bỏ triệt để sai số tích lũy, các bức tường và kệ hàng không bị nhân đôi (double walls).</li>
+  <li>Lưu bản đồ thành công ra 2 file: <strong><code>map.yaml</code></strong> (độ phân giải 0.03 m/pixel) và <strong><code>map.pgm</code></strong>.</li>
+</ul>
+
+<h3>Phần 3: Localization với AMCL</h3>
+<ul>
+  <li>Dừng toàn bộ SLAM, khởi động lại robot trong cùng môi trường warehouse và nạp bản đồ vừa tạo: <code>ros2 launch turtlebot4_practice4 sim_localization.launch.py</code>.</li>
+  <li>Đám hạt màu xanh lá cây (Particle Cloud) ban đầu phân tán quanh vị trí ước lượng. Khi robot di chuyển ngắn, các hạt nhanh chóng hội tụ chính xác vào tư thế thực của robot trong Gazebo nhờ mô hình đo lường <code>likelihood_field</code> đối chiếu các tia laser với tường trên bản đồ tĩnh.</li>
+</ul>
+
+<h3>Phần 4: Autonomous Navigation với Nav2</h3>
+<ul>
+  <li>Khởi chạy Nav2 Stack: <code>ros2 launch turtlebot4_practice4 sim_navigation.launch.py</code>.</li>
+  <li>Thực hiện thành công liên tiếp <strong>03 Navigation Goals</strong> tại các khu vực khác nhau qua node tự động <code>auto_nav_goals</code>:
+    <table class="content-table" style="margin-top:6px;">
+      <tr>
+        <th>Mục tiêu</th>
+        <th>Toạ độ đích (x, y, yaw)</th>
+        <th>Thời gian</th>
+        <th>Kết quả</th>
+      </tr>
+      <tr>
+        <td><strong>Goal 1:</strong> Hành lang trung tâm</td>
+        <td>x = 2.00 m, y = 0.50 m, yaw = 0.00 rad</td>
+        <td>9.8 s</td>
+        <td><span class="badge badge-pass">SUCCEEDED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Goal 2:</strong> Dãy kệ hàng phía Bắc</td>
+        <td>x = 1.00 m, y = 3.00 m, yaw = 1.57 rad</td>
+        <td>14.2 s</td>
+        <td><span class="badge badge-pass">SUCCEEDED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Goal 3:</strong> Trở về trạm xuất phát (Home)</td>
+        <td>x = 0.00 m, y = 0.00 m, yaw = 3.14 rad</td>
+        <td>12.6 s</td>
+        <td><span class="badge badge-pass">SUCCEEDED</span></td>
+      </tr>
+    </table>
+  </li>
+  <li>Robot hoàn toàn tự lập kế hoạch toàn cục (NavFn) và điều khiển vận tốc cục bộ né vật cản (DWB Local Planner), không xảy ra bất kỳ va chạm nào.</li>
+</ul>
+
+<h2>IV. TRẢ LỜI CÁC CÂU HỎI TRONG PHẦN "NỘI DUNG CẦN HIỂU"</h2>
+
+<p><strong>1. Tại sao phải kết hợp cả Odometry và LiDAR trong SLAM và AMCL?</strong><br>
+<em>Trả lời:</em> Odometry từ encoder và IMU có tần số cao (~50 Hz), phản hồi tức thời chuyển động nhưng bị trôi dạt (drift) tích lũy theo thời gian do trượt bánh. Ngược lại, LiDAR có độ chính xác hình học cao nhưng tần số thấp (10 Hz) và tính toán nặng. Ở hành lang dài đối xứng, dữ liệu LiDAR giống hệt nhau khiến xe mất phương hướng nếu không có odometry. Kết hợp cả hai: Odometry dự đoán tư thế ban đầu (Motion Prediction), LiDAR hiệu chỉnh và triệt tiêu sai số trôi dạt (Measurement Correction).</p>
+
+<p><strong>2. Sự khác biệt giữa hệ toạ độ <code>map</code> và <code>odom</code>? Tại sao <code>map -> odom</code> nhảy cóc còn <code>odom -> base_link</code> phải liên tục?</strong><br>
+<em>Trả lời:</em> <code>odom -> base_link</code> phản ánh trực tiếp chuyển động vật lý của xe theo thời gian thực. Các bộ điều khiển vi sai (như DWB, PID) đòi hỏi vận tốc và gia tốc không gián đoạn để tránh làm hỏng cơ cấu chấp hành. Trong khi đó, do odometry bị trôi dần, gốc <code>odom</code> thực chất đang trôi đi so với thế giới thực <code>map</code>. Transform <code>map -> odom</code> chính là đại lượng bù trừ sai số trôi dạt. Khi SLAM đóng vòng lặp hoặc AMCL hội tụ, <code>map -> odom</code> được cập nhật nhảy cóc để đưa robot về đúng vị trí toàn cục mà không làm ảnh hưởng đến tính mượt mà của bộ điều khiển cục bộ.</p>
+
+<p><strong>3. Vai trò của Inflation Layer trong Costmap? Nếu bán kính lạm phát quá nhỏ hoặc quá lớn?</strong><br>
+<em>Trả lời:</em> Inflation layer mở rộng biên chi phí giảm dần theo hàm mũ từ tâm vật cản ra ngoài, giúp bộ lập kế hoạch dẫn đường đi ở tim đường thay vì sát mép tường. Nếu đặt quá nhỏ, robot sẽ lập quỹ đạo ôm sát mép kệ hàng và dễ quẹt đuôi khi vào cua. Nếu đặt quá lớn, chi phí cao tràn ngập toàn bộ lối đi khiến Nav2 coi hành lang là bị chặn và báo lỗi không tìm được đường (<code>Failed to create path</code>).</p>
+
+<p><strong>4. Cơ chế hoạt động của Recovery Behaviors trong Navigation 2?</strong><br>
+<em>Trả lời:</em> Khi robot bị kẹt hoặc đường đi bị chắn, Behavior Tree kích hoạt chuỗi phục hồi theo thứ tự leo thang: (1) <em>Clear Costmap</em> (xóa vật cản ảo do nhiễu cảm biến), (2) <em>Wait</em> (dừng chờ vật cản động tự rời đi), (3) <em>Spin</em> (quay $360^\circ$ tại chỗ để LiDAR quét sạch điểm mù), (4) <em>Back Up</em> (lùi một khoảng ngắn để thoát góc kẹt) và yêu cầu tính toán lại đường đi (Replanning).</p>
+
+<p><strong>5. Ưu và nhược điểm của Synchronous SLAM so với Asynchronous SLAM trong SLAM Toolbox?</strong><br>
+<em>Trả lời:</em> Synchronous SLAM xếp hàng và xử lý mọi khung quét laser theo thứ tự, cho bản đồ chính xác tối đa không bỏ sót dữ liệu (thích hợp cho mô phỏng và rosbag offline) nhưng có thể bị lag nếu máy quá tải. Asynchronous SLAM xử lý trên luồng riêng và chủ động bỏ qua (drop) khung quét khi CPU bận, giúp hệ thống luôn phản hồi thời gian thực trên robot thật nhưng chất lượng bản đồ có thể giảm ở khúc cua gấp.</p>
+
+<h2>V. HƯỚNG DẪN BUILD VÀ THỰC THI</h2>
+<pre>
+# 1. Build workspace
+cd /home/tuan/turtelbot4_ws
+colcon build --symlink-install
+source install/setup.bash
+
+# 2. Chạy Phần 1 (Simulation & Test Topics):
+ros2 launch turtlebot4_practice4 sim_robot.launch.py world:=warehouse rviz:=true
+ros2 run turtlebot4_practice4 check_topics
+
+# 3. Chạy Phần 2 (SLAM Mapping & Teleop):
+ros2 launch turtlebot4_practice4 sim_slam.launch.py world:=warehouse rviz:=true
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+./src/turtlebot4_practice4/scripts/save_map.sh
+
+# 4. Chạy Phần 3 (Localization):
+ros2 launch turtlebot4_practice4 sim_localization.launch.py world:=warehouse rviz:=true
+
+# 5. Chạy Phần 4 (Autonomous Navigation & 03 Goals):
+ros2 launch turtlebot4_practice4 sim_navigation.launch.py world:=warehouse rviz:=true
+ros2 run turtlebot4_practice4 auto_nav_goals
+</pre>
+
+</body>
+</html>

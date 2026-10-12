@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# ROS / Colcon (nếu build lỡ phát sinh trong src)
+build/
+install/
+log/
+
+# OS
+.DS_Store
+*.swp
+*~
