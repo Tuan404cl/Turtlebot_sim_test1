@@ -15,6 +15,8 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 
 ARGUMENTS = [
+    DeclareLaunchArgument('namespace', default_value='',
+                          description='Robot namespace'),
     DeclareLaunchArgument('world', default_value='warehouse',
                           description='Gazebo world: warehouse, depot, or maze'),
     DeclareLaunchArgument('model', default_value='standard',
@@ -50,6 +52,7 @@ def generate_launch_description():
             ('y', LaunchConfiguration('y')),
             ('z', LaunchConfiguration('z')),
             ('yaw', LaunchConfiguration('yaw')),
+            ('namespace', LaunchConfiguration('namespace')),
             ('rviz', 'false')
         ]
     )

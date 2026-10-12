@@ -15,6 +15,8 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 
 ARGUMENTS = [
+    DeclareLaunchArgument('namespace', default_value='',
+                          description='Robot namespace'),
     DeclareLaunchArgument('launch_sim', default_value='true',
                           choices=['true', 'false'],
                           description='Tự động khởi chạy luôn Gazebo simulation'),
@@ -46,6 +48,7 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource([sim_launch]),
                 launch_arguments=[
                     ('world', LaunchConfiguration('world')),
+                    ('namespace', LaunchConfiguration('namespace')),
                     ('rviz', 'false')
                 ]
             )

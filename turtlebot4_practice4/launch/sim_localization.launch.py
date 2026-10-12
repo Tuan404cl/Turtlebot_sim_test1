@@ -24,6 +24,8 @@ def generate_launch_description():
     nav2_loc_launch = PathJoinSubstitution([pkg_nav2_bringup, 'launch', 'localization_launch.py'])
 
     arguments = [
+        DeclareLaunchArgument('namespace', default_value='',
+                              description='Robot namespace'),
         DeclareLaunchArgument('launch_sim', default_value='true',
                               choices=['true', 'false'],
                               description='Khởi chạy kèm Gazebo simulation'),
@@ -46,6 +48,7 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource([sim_launch]),
                 launch_arguments=[
                     ('world', LaunchConfiguration('world')),
+                    ('namespace', LaunchConfiguration('namespace')),
                     ('rviz', 'false')
                 ]
             )

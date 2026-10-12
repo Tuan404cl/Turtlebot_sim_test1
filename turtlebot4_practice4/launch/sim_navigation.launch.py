@@ -32,6 +32,8 @@ def generate_launch_description():
     tb4_nav_launch = PathJoinSubstitution([pkg_tb4_nav, 'launch', 'nav2.launch.py'])
 
     arguments = [
+        DeclareLaunchArgument('namespace', default_value='',
+                              description='Robot namespace'),
         DeclareLaunchArgument('launch_sim', default_value='true',
                               choices=['true', 'false'],
                               description='Khởi chạy kèm Gazebo simulation'),
@@ -54,6 +56,7 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource([sim_launch]),
                 launch_arguments=[
                     ('world', LaunchConfiguration('world')),
+                    ('namespace', LaunchConfiguration('namespace')),
                     ('rviz', 'false')
                 ]
             )
