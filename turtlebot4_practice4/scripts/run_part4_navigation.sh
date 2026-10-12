@@ -21,3 +21,4 @@ echo "3. Cách 2: Mở terminal khác và chạy ./run_auto_goals.sh để robot
 echo "======================================================="
 
 ros2 launch turtlebot4_practice4 sim_navigation.launch.py map:="$MAP_FILE" world:=warehouse rviz:=true
+

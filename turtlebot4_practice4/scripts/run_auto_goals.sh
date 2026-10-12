@@ -17,3 +17,4 @@ echo "Khởi chạy kịch bản tự động điều hướng qua 3 vùng khác
 echo "======================================================="
 
 ros2 run turtlebot4_practice4 auto_nav_goals
+

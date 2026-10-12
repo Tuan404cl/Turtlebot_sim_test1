@@ -52,3 +52,4 @@ def generate_launch_description():
     ld.add_action(rviz_mapping)
     ld.add_action(rviz_nav2)
     return ld
+

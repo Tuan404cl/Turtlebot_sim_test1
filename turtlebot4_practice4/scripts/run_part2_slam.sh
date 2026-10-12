@@ -18,3 +18,4 @@ echo "Khi hoàn thành bản đồ, mở một terminal khác và chạy ./save_
 echo "======================================================="
 
 ros2 launch turtlebot4_practice4 sim_slam.launch.py world:=warehouse rviz:=true
+

@@ -76,3 +76,4 @@ def generate_launch_description():
     ld.add_action(localization)
     ld.add_action(rviz_node)
     return ld
+

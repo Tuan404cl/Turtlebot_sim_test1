@@ -18,3 +18,4 @@ echo "2. Nhấn Ctrl+C để dừng mô phỏng khi hoàn tất."
 echo "======================================================="
 
 ros2 launch turtlebot4_practice4 sim_robot.launch.py world:=warehouse rviz:=true
+

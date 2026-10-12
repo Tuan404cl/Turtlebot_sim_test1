@@ -21,3 +21,4 @@ echo "3. Lái nhẹ robot để quan sát các hạt (particle cloud) hội tụ
 echo "======================================================="
 
 ros2 launch turtlebot4_practice4 sim_localization.launch.py map:="$MAP_FILE" world:=warehouse rviz:=true
+
