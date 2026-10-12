@@ -20,7 +20,7 @@ def generate_launch_description():
     sim_launch = PathJoinSubstitution([pkg_practice, 'launch', 'sim_robot.launch.py'])
     default_map = PathJoinSubstitution([pkg_practice, 'maps', 'map.yaml'])
     loc_params = PathJoinSubstitution([pkg_practice, 'config', 'localization_params.yaml'])
-    rviz_config = PathJoinSubstitution([pkg_practice, 'config', 'turtlebot4_mapping.rviz'])
+    rviz_config = PathJoinSubstitution([pkg_practice, 'config', 'turtlebot4_nav2.rviz'])
     nav2_loc_launch = PathJoinSubstitution([pkg_nav2_bringup, 'launch', 'localization_launch.py'])
 
     arguments = [
@@ -61,6 +61,7 @@ def generate_launch_description():
     localization = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([nav2_loc_launch]),
         launch_arguments=[
+            ('namespace', LaunchConfiguration('namespace')),
             ('map', LaunchConfiguration('map')),
             ('use_sim_time', LaunchConfiguration('use_sim_time')),
             ('params_file', loc_params),
