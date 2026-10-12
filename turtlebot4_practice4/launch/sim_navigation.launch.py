@@ -47,13 +47,18 @@ def generate_launch_description():
                               description='Mở RViz2 hiển thị Nav2 Goal, Costmaps, Path'),
     ]
 
-    # 1. Gazebo Simulation
-    simulation = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([sim_launch]),
-        launch_arguments=[
-            ('world', LaunchConfiguration('world')),
-            ('rviz', 'false')
+    # 1. Gazebo Simulation (GroupAction scoped=True để tránh rviz argument ghi đè ra ngoài)
+    simulation = GroupAction(
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([sim_launch]),
+                launch_arguments=[
+                    ('world', LaunchConfiguration('world')),
+                    ('rviz', 'false')
+                ]
+            )
         ],
+        scoped=True,
         condition=IfCondition(LaunchConfiguration('launch_sim'))
     )
 

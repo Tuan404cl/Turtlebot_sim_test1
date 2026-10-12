@@ -7,7 +7,7 @@ Phần 3: Localization với bản đồ đã tạo
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -39,13 +39,18 @@ def generate_launch_description():
                               description='Mở RViz2 hiển thị AMCL particle cloud và robot pose'),
     ]
 
-    # 1. Simulation
-    simulation = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([sim_launch]),
-        launch_arguments=[
-            ('world', LaunchConfiguration('world')),
-            ('rviz', 'false')
+    # 1. Simulation (GroupAction scoped=True để tránh rviz argument ghi đè ra ngoài)
+    simulation = GroupAction(
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([sim_launch]),
+                launch_arguments=[
+                    ('world', LaunchConfiguration('world')),
+                    ('rviz', 'false')
+                ]
+            )
         ],
+        scoped=True,
         condition=IfCondition(LaunchConfiguration('launch_sim'))
     )
 

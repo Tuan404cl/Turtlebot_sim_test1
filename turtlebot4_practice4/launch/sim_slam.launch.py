@@ -39,13 +39,18 @@ def generate_launch_description():
     slam_params = PathJoinSubstitution([pkg_practice, 'config', 'slam_toolbox_params.yaml'])
     rviz_config = PathJoinSubstitution([pkg_practice, 'config', 'turtlebot4_mapping.rviz'])
 
-    # 1. Khởi chạy Simulation nếu launch_sim == true
-    simulation = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([sim_launch]),
-        launch_arguments=[
-            ('world', LaunchConfiguration('world')),
-            ('rviz', 'false')
+    # 1. Khởi chạy Simulation nếu launch_sim == true (sử dụng GroupAction scoped=True để tránh ghi đè rviz argument ra ngoài)
+    simulation = GroupAction(
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([sim_launch]),
+                launch_arguments=[
+                    ('world', LaunchConfiguration('world')),
+                    ('rviz', 'false')
+                ]
+            )
         ],
+        scoped=True,
         condition=IfCondition(LaunchConfiguration('launch_sim'))
     )
 
