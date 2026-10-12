@@ -69,6 +69,7 @@ def generate_launch_description():
     localization = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([tb4_loc_launch]),
         launch_arguments=[
+            ('namespace', LaunchConfiguration('namespace')),
             ('map', LaunchConfiguration('map')),
             ('params', loc_params),
             ('use_sim_time', LaunchConfiguration('use_sim_time'))
@@ -79,6 +80,7 @@ def generate_launch_description():
     navigation = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([tb4_nav_launch]),
         launch_arguments=[
+            ('namespace', LaunchConfiguration('namespace')),
             ('params_file', nav2_params),
             ('use_sim_time', LaunchConfiguration('use_sim_time'))
         ]

@@ -4,6 +4,9 @@
 # ==============================================================================
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+"$SCRIPT_DIR/clean_ros.sh" > /dev/null 2>&1 || true
+
 source /opt/ros/humble/setup.bash
 if [ -f "/home/tuan/turtelbot4_ws/install/setup.bash" ]; then
     source /home/tuan/turtelbot4_ws/install/setup.bash
