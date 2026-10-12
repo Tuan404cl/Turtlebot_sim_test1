@@ -39,6 +39,10 @@ def main():
     print("      TURTLEBOT 4 - TỰ ĐỘNG THỰC HIỆN 03 NAV GOALS     ")
     print("=======================================================")
 
+    print("Thiết lập vị trí ban đầu (0.0, 0.0)...")
+    init_pose = create_pose_stamped(navigator, 0.0, 0.0, 0.0)
+    navigator.setInitialPose(init_pose)
+
     print("Đang đợi Nav2 active hoàn toàn...")
     navigator.waitUntilNav2Active()
     print(">>> Nav2 đã sẵn sàng hoạt động! <<<\n")
