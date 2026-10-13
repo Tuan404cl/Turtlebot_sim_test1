@@ -12,7 +12,7 @@ Bao gồm:
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction, SetEnvironmentVariable, TimerAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -30,6 +30,10 @@ def generate_launch_description():
 
     tb4_loc_launch = PathJoinSubstitution([pkg_tb4_nav, 'launch', 'localization.launch.py'])
     tb4_nav_launch = PathJoinSubstitution([pkg_tb4_nav, 'launch', 'nav2.launch.py'])
+
+    # FastDDS chỉ dùng UDP (tắt Shared Memory). Nếu dùng SHM, sau một thời gian AMCL ngừng
+    # nhận /scan hoặc TF map->odom không tới được controller_server -> lỗi
+    # "Transform data too old when converting from map to odom" và robot quay vòng (recovery spin).
     fastdds_profile = PathJoinSubstitution([pkg_practice, 'config', 'fastdds_udp_only.xml'])
     set_fastdds = SetEnvironmentVariable('FASTRTPS_DEFAULT_PROFILES_FILE', fastdds_profile)
 
@@ -49,6 +53,9 @@ def generate_launch_description():
         DeclareLaunchArgument('rviz', default_value='true',
                               choices=['true', 'false'],
                               description='Mở RViz2 hiển thị Nav2 Goal, Costmaps, Path'),
+        DeclareLaunchArgument('auto_navigate', default_value='true',
+                              choices=['true', 'false'],
+                              description='Tự động gửi 03 Navigation Goals khi Nav2 sẵn sàng'),
     ]
 
     # 1. Gazebo Simulation (GroupAction scoped=True để tránh rviz argument ghi đè ra ngoài)
@@ -67,7 +74,20 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('launch_sim'))
     )
 
-    # 2. Localization (AMCL + Map Server)
+    # 2. TF Relay & Helper services (chạy sớm sau 3s)
+    tf_relay_node = Node(
+        package='turtlebot4_practice4',
+        executable='tf_relay',
+        name='tf_relay',
+        output='screen',
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
+    )
+    delayed_tf_relay = TimerAction(
+        period=3.0,
+        actions=[tf_relay_node]
+    )
+
+    # 3. Localization (AMCL + Map Server) - khởi chạy sớm ở giây thứ 6 khi robot ở trên dock (0, 0, 0)
     localization = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([tb4_loc_launch]),
         launch_arguments=[
@@ -77,18 +97,12 @@ def generate_launch_description():
             ('use_sim_time', LaunchConfiguration('use_sim_time'))
         ]
     )
-
-    # 3. Nav2 Navigation (Planner, Controller, Recoveries, BT Navigator)
-    navigation = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([tb4_nav_launch]),
-        launch_arguments=[
-            ('namespace', LaunchConfiguration('namespace')),
-            ('params_file', nav2_params),
-            ('use_sim_time', LaunchConfiguration('use_sim_time'))
-        ]
+    delayed_localization = TimerAction(
+        period=6.0,
+        actions=[localization]
     )
 
-    # 4. RViz2 Navigation View
+    # 4. RViz2 Navigation View - mở đồng thời cùng localization ở giây thứ 6 (hiển thị robot trên dock)
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -98,12 +112,60 @@ def generate_launch_description():
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
         condition=IfCondition(LaunchConfiguration('rviz'))
     )
+    delayed_rviz = TimerAction(
+        period=6.0,
+        actions=[rviz_node]
+    )
+
+    # 5. Tự động Undock robot ở giây thứ 16 (khi AMCL và RViz đã theo dõi, robot lùi ra và AMCL track trực tiếp)
+    undock_node = Node(
+        package='turtlebot4_practice4',
+        executable='auto_undock',
+        name='auto_undocker',
+        output='screen',
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
+    )
+    delayed_undock = TimerAction(
+        period=16.0,
+        actions=[undock_node]
+    )
+
+    # 6. Nav2 Navigation (Planner, Controller, Recoveries, BT Navigator) - chờ 32s khi robot đã undock xong hoàn toàn
+    navigation = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([tb4_nav_launch]),
+        launch_arguments=[
+            ('namespace', LaunchConfiguration('namespace')),
+            ('params_file', nav2_params),
+            ('use_sim_time', LaunchConfiguration('use_sim_time'))
+        ]
+    )
+    delayed_navigation = TimerAction(
+        period=32.0,
+        actions=[navigation]
+    )
+
+    # 7. Tự động gửi 3 Navigation Goals khi Nav2 đã sẵn sàng (chờ 45s)
+    nav_goals_node = Node(
+        package='turtlebot4_practice4',
+        executable='auto_nav_goals',
+        name='auto_nav_goals',
+        output='screen',
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        condition=IfCondition(LaunchConfiguration('auto_navigate'))
+    )
+    delayed_nav_goals = TimerAction(
+        period=45.0,
+        actions=[nav_goals_node]
+    )
 
     ld = LaunchDescription(arguments)
     ld.add_action(set_fastdds)
     ld.add_action(simulation)
-    ld.add_action(localization)
-    ld.add_action(navigation)
-    ld.add_action(rviz_node)
+    ld.add_action(delayed_undock)
+    ld.add_action(delayed_tf_relay)
+    ld.add_action(delayed_localization)
+    ld.add_action(delayed_rviz)
+    ld.add_action(delayed_navigation)
+    ld.add_action(delayed_nav_goals)
     return ld
 

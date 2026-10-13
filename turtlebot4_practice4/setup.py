@@ -15,8 +15,9 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
         (os.path.join('share', package_name, 'config'), glob('config/*')),
         (os.path.join('share', package_name, 'maps'), glob('maps/*')),
-        (os.path.join('share', package_name, 'scripts'), glob('scripts/*')),
-        (os.path.join('share', package_name, 'docs'), glob('docs/*')),
+        (os.path.join('share', package_name, 'scripts'), [f for f in glob('scripts/*') if os.path.isfile(f)]),
+        (os.path.join('share', package_name, 'docs'), [f for f in glob('docs/*') if os.path.isfile(f)]),
+        (os.path.join('share', package_name, 'docs', 'figures'), [f for f in glob('docs/figures/*') if os.path.isfile(f)]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -29,6 +30,8 @@ setup(
         'console_scripts': [
             'check_topics = turtlebot4_practice4.check_topics:main',
             'auto_nav_goals = turtlebot4_practice4.auto_nav_goals:main',
+            'auto_undock = turtlebot4_practice4.auto_undock:main',
+            'tf_relay = turtlebot4_practice4.tf_relay:main',
         ],
     },
 )

@@ -22,8 +22,6 @@ def generate_launch_description():
     loc_params = PathJoinSubstitution([pkg_practice, 'config', 'localization_params.yaml'])
     rviz_config = PathJoinSubstitution([pkg_practice, 'config', 'turtlebot4_nav2.rviz'])
     nav2_loc_launch = PathJoinSubstitution([pkg_nav2_bringup, 'launch', 'localization_launch.py'])
-    fastdds_profile = PathJoinSubstitution([pkg_practice, 'config', 'fastdds_udp_only.xml'])
-    set_fastdds = SetEnvironmentVariable('FASTRTPS_DEFAULT_PROFILES_FILE', fastdds_profile)
 
     arguments = [
         DeclareLaunchArgument('namespace', default_value='',
@@ -71,7 +69,19 @@ def generate_launch_description():
         ]
     )
 
-    # 3. RViz2
+    # 3. TF Relay Node (Phát dynamic TF cho cảm biến để khắc phục lỗi drop TF static)
+    tf_relay_node = Node(
+        package='turtlebot4_practice4',
+        executable='tf_relay',
+        name='tf_relay',
+        output='screen',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'rate': 20.0
+        }]
+    )
+
+    # 4. RViz2
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -83,9 +93,9 @@ def generate_launch_description():
     )
 
     ld = LaunchDescription(arguments)
-    ld.add_action(set_fastdds)
     ld.add_action(simulation)
     ld.add_action(localization)
+    ld.add_action(tf_relay_node)
     ld.add_action(rviz_node)
     return ld
 

@@ -21,7 +21,7 @@ amcl:
     lambda_short: 0.1
     laser_likelihood_max_dist: 2.0
     laser_max_range: 100.0
-    laser_min_range: -1.0
+    laser_min_range: 0.15
     laser_model_type: "likelihood_field"
     max_beams: 60
     max_particles: 2000
@@ -36,7 +36,7 @@ amcl:
     save_pose_rate: 2.0
     sigma_hit: 0.2
     tf_broadcast: true
-    transform_tolerance: 2.0
+    transform_tolerance: 1.0
     update_min_a: 0.05
     update_min_d: 0.05
     z_hit: 0.5
@@ -59,3 +59,9 @@ map_saver:
     free_thresh_default: 0.25
     occupied_thresh_default: 0.65
     map_subscribe_transient_local: True
+
+lifecycle_manager_localization:
+  ros__parameters:
+    use_sim_time: True
+    autostart: True
+    bond_timeout: 30.0

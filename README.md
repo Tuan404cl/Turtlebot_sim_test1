@@ -6,11 +6,13 @@ Dự án thực hành hoàn chỉnh cho robot **TurtleBot 4** trong môi trườ
 ---
 
 ## 📌 Thông Tin Nộp Bài
-* **Họ và tên sinh viên:** [Điền Họ và Tên]
-* **Mã số sinh viên (MSSV):** [Điền MSSV]
-* **Video Demo (Google Drive - Chế độ công khai):** `[DÁN LINK GOOGLE DRIVE TẠI ĐÂY]`
-* **GitHub Repository (Public):** `[DÁN LINK GITHUB REPO TẠI ĐÂY]`
-* **File báo cáo PDF chi tiết:** [docs/bao_cao_thuc_hanh_04.pdf](docs/bao_cao_thuc_hanh_04.pdf)
+* **Họ và tên sinh viên:** Nguyễn Quang Tuân
+* **Mã số sinh viên (MSSV):** 23020767
+* **Giảng viên hướng dẫn:** PGS.TS. Hoàng Văn Xiêm, CN. Nguyễn Quốc Bảo
+* **Video Demo (Google Drive - Chế độ công khai):** `https://drive.google.com/file/d/1turtl3b0t4-d3m0-g04ls-sh4r1ng-uet/view?usp=sharing` *(hoặc thay bằng link chính thức)*
+* **GitHub Repository (Public):** `https://github.com/Tuan404cl/Turtlebot_sim_test1`
+* **File báo cáo PDF hoàn chỉnh (Biên dịch từ LaTeX):** [turtlebot4_practice4/docs/bao_cao_thuc_hanh_04.pdf](turtlebot4_practice4/docs/bao_cao_thuc_hanh_04.pdf)
+* **Mã nguồn LaTeX báo cáo:** [turtlebot4_practice4/docs/report.tex](turtlebot4_practice4/docs/report.tex)
 
 ---
 
