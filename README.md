@@ -9,10 +9,8 @@ Dự án thực hành hoàn chỉnh cho robot **TurtleBot 4** trong môi trườ
 * **Họ và tên sinh viên:** Nguyễn Quang Tuân
 * **Mã số sinh viên (MSSV):** 23020767
 * **Giảng viên hướng dẫn:** PGS.TS. Hoàng Văn Xiêm, CN. Nguyễn Quốc Bảo
-* **Video Demo (Google Drive - Chế độ công khai):** `https://drive.google.com/file/d/1turtl3b0t4-d3m0-g04ls-sh4r1ng-uet/view?usp=sharing` *(hoặc thay bằng link chính thức)*
+* **Video Demo (Google Drive - Chế độ công khai):** `[https://drive.google.com/file/d/1turtl3b0t4-d3m0-g04ls-sh4r1ng-uet/view?usp=sharing](https://drive.google.com/drive/folders/1vl4O0C9A4C3Ed_HwHmJAeVCzwEQZulCx?usp=drive_link)` *(hoặc thay bằng link chính thức)*
 * **GitHub Repository (Public):** `https://github.com/Tuan404cl/Turtlebot_sim_test1`
-* **File báo cáo PDF hoàn chỉnh (Biên dịch từ LaTeX):** [turtlebot4_practice4/docs/bao_cao_thuc_hanh_04.pdf](turtlebot4_practice4/docs/bao_cao_thuc_hanh_04.pdf)
-* **Mã nguồn LaTeX báo cáo:** [turtlebot4_practice4/docs/report.tex](turtlebot4_practice4/docs/report.tex)
 
 ---
 
@@ -171,57 +169,5 @@ source install/setup.bash
    * **Goal 2:** Dãy kệ hàng phía Bắc $(x=1.0\text{ m}, y=3.0\text{ m})$ $\rightarrow$ Thành công.
    * **Goal 3:** Quay trở về vị trí trạm sạc ban đầu $(x=0.0\text{ m}, y=0.0\text{ m})$ $\rightarrow$ Thành công.
 
----
 
-## 🧠 Trả Lời Các Câu Hỏi Trong Phần "Nội Dung Cần Hiểu"
-
-### 1. Tại sao cần kết hợp cả Odometry và LiDAR trong SLAM và AMCL?
-* Odometry có tần số cao (~50 Hz) phản hồi tức thời chuyển động quay và tiến của xe nhưng bị trôi dạt (drift) tích lũy theo thời gian do trượt bánh xe vi sai.
-* LiDAR có độ chính xác hình học cao nhưng tần số thấp (10 Hz) và tính toán nặng. Ở hành lang dài đối xứng, các tia laser giống nhau ở nhiều điểm khiến robot mất dấu vị trí nếu không có odometry làm dự đoán trước.
-* Sự kết hợp (Sensor Fusion) giúp Odometry đóng vai trò dự đoán tư thế bước tiếp theo (Motion Model Prediction), còn LiDAR đóng vai trò hiệu chỉnh và triệt tiêu sai số trôi dạt (Measurement Correction).
-
-### 2. Sự khác biệt giữa hệ toạ độ `map` và `odom`?
-* `odom -> base_link` phản ánh trực tiếp chuyển động vật lý thực của robot. Các bộ điều khiển bám đường (DWB, PID) đòi hỏi vận tốc và vị trí liên tục mượt mà để không làm giật động cơ.
-* Do odometry bị trôi dần, gốc toạ độ `odom` thực chất đang trôi đi so với thế giới cố định `map`. Transform `map -> odom` chính là đại lượng bù trừ sai số trôi dạt đó. Khi SLAM phát hiện vòng khép kín (Loop Closure) hoặc AMCL hội tụ, transform `map -> odom` được phép nhảy cóc (jump) để nắn chỉnh toạ độ toàn cục của xe mà không gây giật cục bộ.
-
-### 3. Vai trò của Inflation Layer trong Costmap?
-* Inflation layer tạo ra một vùng dốc chi phí (cost gradient) giảm dần theo hàm mũ từ tâm chướng ngại vật ra ngoài bán kính lạm phát ($r_{\text{inflation}}$). Điều này giúp thuật toán Dijkstra/A* luôn tìm đường đi ở khoảng cách an toàn, tránh đi sát mép tường.
-* Nếu đặt quá nhỏ: Robot sẽ đi sát sạt vào mép kệ hàng và dễ quẹt đuôi khi vào cua.
-* Nếu đặt quá lớn: Chi phí cao lan tràn khắp các hành lang hẹp, khiến Nav2 hiểu lầm là đường bị tắc và báo lỗi không tìm được đường (`Failed to create path`).
-
-### 4. Cơ chế hoạt động của Recovery Behaviors trong Nav2?
-Khi robot bị kẹt hoặc mất đường đi, Behavior Tree Navigator thực hiện chuỗi phục hồi:
-1. `Clear Costmap`: Xóa các ô vật cản tạm thời trên costmap để loại trừ nhiễu cảm biến ảo.
-2. `Wait`: Dừng lại chờ vài giây xem chướng ngại vật động có tự rời đi hay không.
-3. `Spin`: Quay tại chỗ $360^\circ$ để LiDAR quét sạch điểm mù và cập nhật lại costmap.
-4. `Back Up`: Lùi xe một khoảng ngắn an toàn để thoát góc kẹt và yêu cầu lập lại đường đi.
-
-### 5. Ưu và nhược điểm của Synchronous SLAM so với Asynchronous SLAM?
-* **Synchronous SLAM:** Xử lý tuần tự mọi khung quét laser, độ chính xác bản đồ tối đa, không bỏ sót dữ liệu (rất thích hợp cho mô phỏng), nhưng có thể bị lag nếu máy tính quá tải.
-* **Asynchronous SLAM:** Xử lý trên luồng độc lập và chủ động bỏ qua khung quét khi CPU bận, đảm bảo hệ thống luôn phản hồi thời gian thực nhưng chất lượng bản đồ có thể suy giảm ở khúc cua gấp.
-
----
-
-## 🎬 Hướng Dẫn Quay Video Demo
-
-Video cần có thời lượng khoảng 3 - 5 phút với các phân đoạn:
-1. **Phần 1:** Quay giao diện Gazebo và chạy node `check_topics` xác nhận [PASS] cho `/scan`, `/odom`, `/cmd_vel`.
-2. **Phần 2:** Quay quá trình teleop xây dựng bản đồ trên RViz2 và thực hiện lệnh lưu `map.yaml`, `map.pgm`.
-3. **Phần 3:** Quay quá trình tắt SLAM, bật `sim_localization.launch.py`, nạp bản đồ và đám hạt AMCL hội tụ.
-4. **Phần 4:** Quay quá trình gửi và hoàn thành thành công liên tiếp ít nhất 03 Navigation Goals khác nhau.
-5. Tải video lên Google Drive và bật chế độ **"Bất kỳ ai có đường liên kết đều có thể xem" (Public)**.
-
----
-
-## 📤 Hướng Dẫn Đẩy Code Lên GitHub Public Repository
-
-```bash
-cd /home/tuan/turtelbot4_ws/src
-git init
-git add .
-git commit -m "Hoan thanh Bai thuc hanh 04: TurtleBot 4 Simulation, SLAM Toolbox va Nav2"
-git branch -M main
-git remote add origin https://github.com/[YOUR_USERNAME]/[YOUR_REPO_NAME].git
-git push -u origin main
-```
 Sau đó truy cập cài đặt repository trên GitHub và đảm bảo trạng thái hiển thị là **Public**.
